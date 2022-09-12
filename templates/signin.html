@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+
+{% block body %}
+
+<div class=" right-panel-active"></div>
+<div class="container__form container--signin" style="margin-top: 130px;">
+    <form action="#" class="form" id="form2" method="post">
+        <h2 class="form__title">Sign In</h2>
+        <input type="email" name="email" placeholder="Email" class="input" />
+        <input type="password" name="password" placeholder="Password" class="input" />
+        <p>Dont have account?<a href="{{url_for('signup')}}" class="link"> Sign Up</a></p>
+        <button class="btn">Sign In</button>
+    </form>
+</div>
+</div>
+
+
+{% endblock %}
