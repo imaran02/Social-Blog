@@ -2,6 +2,8 @@ const signInBtn = document.getElementById("signIn");
 const signUpBtn = document.getElementById("signUp");
 const fistForm = document.getElementById("form1");
 const secondForm = document.getElementById("form2");
+const thirdForm = document.getElementById("form3");
+const fourForm = document.getElementById("form4");
 const container = document.querySelector(".container");
 
 signInBtn.addEventListener("click", () => {
@@ -14,3 +16,5 @@ signUpBtn.addEventListener("click", () => {
 
 fistForm.addEventListener("submit", (e) => e.preventDefault());
 secondForm.addEventListener("submit", (e) => e.preventDefault());
+thirdForm.addEventListener("submit", (e) => e.preventDefault());
+fourForm.addEventListener("submit", (e) => e.preventDefault());

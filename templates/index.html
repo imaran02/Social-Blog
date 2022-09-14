@@ -20,7 +20,14 @@
             <div class="nav-div-2">
                 <ul class="ul-style">
                     <li><a href="{{ url_for('home') }}">Home</a></li>
+
+                    {% if session.email %}
+                    <li><a href="{{ url_for('logout') }}">Logout</li></a>
+                    <li><a href="{{ url_for('new_post') }}">New Post</li></a>
+                    {% else %}
                     <li><a href="{{ url_for('logion') }}">Login</li></a>
+                    {% endif %}
+                    
                     <li><a href="">Contact Us</a></li>
                     <li><a href="">About Us</a></li>
                 </ul>

@@ -8,9 +8,9 @@
 	<div class="container__form container--signup">
 		<form action="/signup" class="form" id="form1" method='post'>
 			<h2 class="form__title">Sign Up</h2>
-			<input type="text" name="name" placeholder="User" class="input" />
-			<input type="email" name="email" placeholder="Email" class="input" />
-			<input type="password" name="password" placeholder="Password" class="input" />
+			<input type="text" name="name" placeholder="User" class="input" required/>
+			<input type="email" name="email" placeholder="Email" class="input" required />
+			<input type="password" name="password" placeholder="Password" class="input" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,12}" required title="8 to 12 characters with one upper, lower & numeric case" />
 			<button class="btn">Sign Up</button>
 		</form>
 	</div>
