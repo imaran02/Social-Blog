@@ -26,8 +26,8 @@ def logion():
     if request.method=='POST':
        email = request.form['email']
        password = request.form['password']
-       userpassword = db.find_one({'email':email},{'_id':0,'password':1})
-       if bcrypt.check_password_hash(userpassword['password'],password):
+       userpassword = db.find_one({'email':email},{'_id':0})
+       if userpassword is not None and bcrypt.check_password_hash(userpassword['password'],password):
         session["email"] = email
         flash(f'User logged in successfully','success')
         return redirect(url_for('home'))
@@ -74,8 +74,7 @@ def logout():
 @app.route("/post/new",methods=['GET','POST'])
 def new_post():
     if request.method=='POST':
-
-        if "email" not in session:
+        if session['email'] is None:
             return redirect(url_for('logion'))
         else:
             title= request.form['title']
@@ -87,39 +86,51 @@ def new_post():
                 'description':description,'date_posted':datetime.now()})
             flash('Post created succesfully','success')
             return redirect(url_for('home'))
-    return render_template("create_post.html")
+    
+    if session['email'] is None:
+        return redirect(url_for('logion'))
+    else:
+        return render_template("create_post.html") 
+        
 
 
 @app.route("/post/<id>",methods=['GET','POST'])
 def post(id):
-    if "email" not in session:
-        return redirect(url_for('logion'))
-    else:
-        dpost = postdb.find({'_id':ObjectId(id)})
-        posts=[]
-        for i in dpost:
-            posts.append(i)
+    dpost = postdb.find({'_id':ObjectId(id)})
+    posts=[]
+    for i in dpost:
+        posts.append(i)
     return render_template("post.html",posts=posts)
-
 
 @app.route("/delete_post/<id>",methods=['GET','POST'])
 def delete_post(id):
-    if "email" not in session:
+    postmail = postdb.find({'_id':ObjectId(id)},{'_id':0,'email':1})
+    for i in postmail:
+        pmail= i
+    
+    if session['email'] is None:
         return redirect(url_for('logion'))
-
+    if session['email'] !=pmail['email']:
+        flash(f'You are not authorized','danger')
+        return redirect(url_for('home'))
     else:
-        dpost = postdb.delete_one({'_id':ObjectId(id)})
+        print(session['email'])
+        postdb.delete_one({'_id':ObjectId(id)})
         flash('Post deleted succesfully','success')
         return redirect(url_for('home'))
 
-
 @app.route("/update_post/<id>",methods=['GET','POST'])
 def update_post(id):
-    if "email" not in session:
+    postmail = postdb.find({'_id':ObjectId(id)},{'_id':0,'email':1})
+    for i in postmail:
+        pmail= i
+    if session['email'] is None:
         return redirect(url_for('logion'))
+    if session['email'] !=pmail['email']:
+        flash(f'You are not authorized','danger')
+        return redirect(url_for('home'))
     else:
         if request.method=='GET':
-            print(id)
             update = postdb.find({'_id':ObjectId(id)})
             oldvalues = []
             for i in update:
