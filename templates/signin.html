@@ -9,11 +9,11 @@
         <h2 class="form__title">Sign In</h2>
         <input type="email" name="email" placeholder="Email" class="input" required />
         <input type="password" name="password" placeholder="Password" class="input"  required/>
+        <a href="{{url_for('reset_request')}}" class="link"> Forget Password</a>
         <p>Dont have account?<a href="{{url_for('signup')}}" class="link"> Sign Up</a></p>
         <button class="btn">Sign In</button>
     </form>
 </div>
 </div>
-
 
 {% endblock %}
