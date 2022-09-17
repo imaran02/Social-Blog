@@ -11,9 +11,14 @@ from app import bcrypt,db,postdb,mail
 import pwnedpasswords
 from bson.objectid import ObjectId
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-
+from transformers import pipeline
 from flask_mail import Message
-import os
+import nltk
+import csv
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem.porter import PorterStemmer
+porter = PorterStemmer()
 
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
@@ -98,13 +103,29 @@ def new_post():
         else:
             title= request.form['title']
             description = request.form['description']
-            uemail= session["email"]
-            user = db.find_one({'email':uemail},{'_id':0,'name':1})
-            username = user['name']
-            id = postdb.insert_one({'email':uemail,'name':username,'title':title,
-                'description':description,'date_posted':datetime.now()})
-            flash('Post created succesfully','success')
-            return redirect(url_for('home'))
+
+            tokens = word_tokenize(description.lower())
+            # Remove stop words
+            english_stopwords = stopwords.words('english')
+            tokens_wo_stopwords = [t for t in tokens if t not in english_stopwords]
+            stem_data = [porter.stem(word) for word in tokens_wo_stopwords]
+            cnt=0
+            with open('bad-words.csv', newline='') as csvfile:
+                csvdata = csv.reader(csvfile, delimiter=' ', quotechar='|')
+                for row in csvdata:
+                    for i in stem_data:
+                        if(i in row):
+                            cnt = cnt+1
+            if(cnt>0):
+                flash(f'Post contains abusive words. Kindly use respected words.','warning')
+            else:
+                uemail= session["email"]
+                user = db.find_one({'email':uemail},{'_id':0,'name':1})
+                username = user['name']
+                id = postdb.insert_one({'email':uemail,'name':username,'title':title,
+                        'description':description,'date_posted':datetime.now()})
+                flash('Post created succesfully','success')
+                return redirect(url_for('home'))
     
     if session['email'] is None:
         return redirect(url_for('logion'))
@@ -157,7 +178,23 @@ def update_post(id):
             title= request.form['title']
             description = request.form['description']
             uemail= session["email"]
-            
+
+            tokens = word_tokenize(description.lower())
+            # Remove stop words
+            english_stopwords = stopwords.words('english')
+            tokens_wo_stopwords = [t for t in tokens if t not in english_stopwords]
+            stem_data = [porter.stem(word) for word in tokens_wo_stopwords]
+            cnt=0
+            with open('bad-words.csv', newline='') as csvfile:
+                csvdata = csv.reader(csvfile, delimiter=' ', quotechar='|')
+                for row in csvdata:
+                    for i in stem_data:
+                        if(i in row):
+                            cnt = cnt+1
+            if(cnt>0):
+                flash(f'Post contains abusive words. Kindly use respected words.','warning')
+                return redirect(url_for('update_post',id=id))
+
             user = db.find_one({'email':uemail},{'_id':0,'name':1})
             username = user['name']
             postdb.delete_many({'_id':ObjectId(id)})
@@ -167,10 +204,26 @@ def update_post(id):
             return redirect(url_for('home'))
     return render_template("updatepost.html",posts=oldvalues)
 
+@app.route("/users_post",methods=['GET','POST'])
+def users_post():
+    if session['email'] is None:
+        return redirect(url_for('logion'))
+    else:
+        uemail = session['email']
+        data = postdb.find({'email':uemail}).sort('date_posted',-1)
+        posts=[]
+        for i in data:
+            posts.append(i)
+    return render_template("users_posts.html",posts=posts)
 
-
-
-
+@app.route("/generate_post",methods=['GET','POST'])
+def generate_post():
+    # Creating a TextGenerationPipeline for text generation
+    generator = pipeline(task='text-generation', model='gpt2')
+    # Generating
+    data= generator("writing a post about GPT-2 machine learning model", max_length=150, num_return_sequences=3)
+    print(data)
+    return redirect(url_for('home'))
 
 
 
