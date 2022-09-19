@@ -5,9 +5,6 @@ from flask_session import Session
 from flask_mail import Mail
 
 
-
-
-
 # from flask_login import LoginManager
 import os
 from flask import Flask, request, abort
@@ -21,6 +18,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'imran.hashmi226@gmail.com'
 app.config['MAIL_PASSWORD'] = 'wjeovbiumczcvnpf'
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 mongo = PyMongo(app)
 
 db = mongo.db.userinfo

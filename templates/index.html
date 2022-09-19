@@ -24,12 +24,12 @@
                     {% if session.email %}
                     <li><a href="{{ url_for('logout') }}">Logout</li></a>
                     <li><a href="{{ url_for('new_post') }}">New Post</li></a>
+                    <li><a href="{{url_for('users_post')}}">My Posts</a></li>
                     {% else %}
                     <li><a href="{{ url_for('logion') }}">Login</li></a>
                     {% endif %}
                     
-                    <li><a href="{{url_for('users_post')}}">My Posts</a></li>
-                    <li><a href="{{url_for('generate_post')}}">Blog Generator</a></li>
+                    <li><a href="{{url_for('generate_userposts')}}">Post Generator</a></li>
                 </ul>
             </div>
         </nav>

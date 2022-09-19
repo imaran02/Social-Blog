@@ -6,7 +6,7 @@ from email import message
 from genericpath import exists
 from unicodedata import name
 from urllib import request
-from flask import render_template,url_for,request,flash,redirect,session
+from flask import render_template,url_for,request,flash,redirect,session,abort
 from app import bcrypt,db,postdb,mail
 import pwnedpasswords
 from bson.objectid import ObjectId
@@ -19,12 +19,29 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
 porter = PorterStemmer()
+from flask_paginate import Pagination, get_page_parameter
+import os
+import pathlib
+from google_auth_oauthlib.flow import Flow
+import google.auth.transport.requests
+from google.oauth2 import id_token
+from pip._vendor import cachecontrol
+import requests
+from transformers import pipeline
+GOOGLE_CLIENT_ID = "1029879931636-8oe6l60prk4ordg4j9ed1hntauess2vm.apps.googleusercontent.com"
+client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
+flow = Flow.from_client_secrets_file(
+    client_secrets_file=client_secrets_file,
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    redirect_uri="http://127.0.0.1:5000/callback"
+)
+
 
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'imran.hashmi226@gmail.com'
-app.config['MAIL_PASSWORD'] = 'wjeovbiumczcvnpf'
+app.config['MAIL_PASSWORD'] = ''
 
 
 
@@ -39,11 +56,19 @@ smtp_server = "smtp.gmail.com"
 
 @app.route('/', methods=['GET'])
 def home():
+    PER_PAGE = 3
+    page = request.args.get(get_page_parameter(), type=int, default=1)
     data = postdb.find({}).sort('date_posted',-1)
+    # datacnt = postdb.count_documents({})
+    # print(datacnt)
+    # pagination = Pagination(page=page, total=data.count_documents(),per_page=3, record_name='posts')
     posts=[]
     for i in data:
         posts.append(i)
-    return render_template("demo.html",posts=posts)
+    i=(page-1)*PER_PAGE
+    pposts=posts[i:i+3]
+    pagination = Pagination(page=page, total=len(posts),per_page=PER_PAGE, record_name='posts')
+    return render_template("demo.html",posts=pposts,pagination=pagination)
 
 @app.route('/login', methods=['GET','POST'])
 def logion():
@@ -91,8 +116,9 @@ def signup():
 @app.route("/logout")
 def logout():
     session["email"] = None
+    session['state'] = None
+    session.clear()
     return redirect("/")
-
 
 
 @app.route("/post/new",methods=['GET','POST'])
@@ -122,6 +148,8 @@ def new_post():
                 uemail= session["email"]
                 user = db.find_one({'email':uemail},{'_id':0,'name':1})
                 username = user['name']
+                if username is None:
+                    username= session['name']
                 id = postdb.insert_one({'email':uemail,'name':username,'title':title,
                         'description':description,'date_posted':datetime.now()})
                 flash('Post created succesfully','success')
@@ -426,3 +454,47 @@ def reset_token(token):
         return redirect(url_for('home'))
     return render_template('reset_token.html')
 
+
+
+
+@app.route("/glogin")
+def glogin():
+    authorization_url, state = flow.authorization_url()
+    session["state"] = state
+    print("state",state)
+    return redirect(authorization_url)
+
+
+@app.route("/callback")
+def callback():
+    flow.fetch_token(authorization_response=request.url)
+
+    if not session["state"] == request.args["state"]:
+        abort(500)  # State does not match!
+
+    credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_CLIENT_ID
+    )
+    print(id_info)
+
+    session["email"] = id_info.get("email")
+    session['name'] = id_info.get('name')
+    return redirect(url_for('home'))
+
+
+@app.route("/generate_userposts",methods=['GET','POST'])
+def generate_userposts():
+    if request.method=='POST':
+        words = request.form['words']
+        generator = pipeline(task='text-generation', model='gpt2')
+        blogs = generator(words, max_length=100, num_return_sequences=3)
+        return render_template("post_generator.html",blogs=blogs)
+    return render_template("post_generator.html")
+    

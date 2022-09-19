@@ -1,8 +1,7 @@
 {% extends 'index.html' %}
 
 {% block body %}
-
-
+{{ pagination.info }}
 {% for post in posts %}
         <article class="media content-section">
           <div class="media-body">
@@ -16,5 +15,6 @@
           </div>
         </article>
     {% endfor %}
-
+    
+    {{ pagination.links }}
 {% endblock %}
