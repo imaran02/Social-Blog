@@ -13,9 +13,10 @@
         {% if session.email %}
         <div>
             {% set id = post["_id"] %}
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{url_for('update_post',id=id)}}">Update</a>
-            <button type="button" class="btn btn-secondary btn-sm mt-1 mb-1" onclick="return confirm('Are you sure you want to Delete?')"
-                ><a href="{{url_for('delete_post',id=id)}}">Delete</a></button>
+            <button type="button" class="btn btn-secondary btn-sm mt-1 mb-1"> 
+                <a href="{{url_for('update_post',id=id)}}">Update</a></button>
+            <button type="button" class="btn btn-secondary btn-sm mt-1 mb-1" onclick="return confirm('Are you sure you want to Delete?')">
+                <a href="{{url_for('delete_post',id=id)}}">Delete</a></button>
         </div>
         {% endif %}
         <h2 class="article-title">{{ post["title"] }}</h2>

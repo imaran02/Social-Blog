@@ -6,6 +6,8 @@ const thirdForm = document.getElementById("form3");
 const fourForm = document.getElementById("form4");
 const container = document.querySelector(".container");
 
+// const swup = new Swup()
+
 signInBtn.addEventListener("click", () => {
 	container.classList.remove("right-panel-active");
 });

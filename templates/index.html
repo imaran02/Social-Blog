@@ -11,12 +11,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static',filename='style.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 </head>
 
 <body>
     <div class="containerh">
         <nav class="nav-style">
-            <div class="nav-div-1"><i><B>SOCIAL BLOGGING</B></i></div>
+            <div class="nav-div-1"><img src="../static/th.jfif" alt="" id="img1"><i><B>SOCIAL BLOGGING</B> </i></div>
             <div class="nav-div-2">
                 <ul class="ul-style">
                     <li><a href="{{ url_for('home') }}">Home</a></li>
