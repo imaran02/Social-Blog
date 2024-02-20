@@ -9,15 +9,15 @@ from flask_mail import Mail
 import os
 from flask import Flask, request, abort
 app = Flask(__name__)
-app.config['SECRET_KEY']= '5791628bb0b13ce0c676dfde280ba245'
+app.config['SECRET_KEY']= ''
 app.config['MONGO_URI']="mongodb://localhost/sbs"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'imran.hashmi226@gmail.com'
-app.config['MAIL_PASSWORD'] = 'wjeovbiumczcvnpf'
+app.config['MAIL_USERNAME'] = ''
+app.config['MAIL_PASSWORD'] = ''
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 mongo = PyMongo(app)
 
