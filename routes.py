@@ -28,7 +28,7 @@ from google.oauth2 import id_token
 from pip._vendor import cachecontrol
 import requests
 from transformers import pipeline
-GOOGLE_CLIENT_ID = "1029879931636-8oe6l60prk4ordg4j9ed1hntauess2vm.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = ""
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
@@ -40,7 +40,7 @@ flow = Flow.from_client_secrets_file(
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'imran.hashmi226@gmail.com'
+app.config['MAIL_USERNAME'] = ''
 app.config['MAIL_PASSWORD'] = ''
 
 
